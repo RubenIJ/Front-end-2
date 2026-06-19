@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router';
 import { useEffect, useState } from 'react';
 import '../Style.css';
 
-
 function Header() {
     const { session } = useSession();
     const navigate = useNavigate();
@@ -36,19 +35,28 @@ function Header() {
 
     return (
         <header>
+            <h1>BookNed</h1>
             {session && (
-                <div>
-                    <span>{profile?.Username ?? session.email}</span>
-                    {profile?.avatar_url ? (
-                        <img src={profile.avatar_url} alt="avatar" style={{ width: 32, height: 32, borderRadius: '50%' }} />
-                    ) : (
-                        <div>{session.email?.[0].toUpperCase()}</div>
-                    )}
-                    <button onClick={handleLogout}>Uitloggen</button>
-                    <nav className="header-nav">
-                        <a href="/home">Home</a>
-                        <a href="/profile">Profiel</a>
-                    </nav>
+                <div className="header-nav">
+                    <a href="/home">Home</a>
+                    <a href="/profile">Profiel</a>
+
+                    <div className="home-userlink">
+                        {profile?.avatar_url ? (
+                            <img
+                                src={profile.avatar_url}
+                                alt="avatar"
+                                className="home-avatar"
+                            />
+                        ) : (
+                            <div className="home-avatar-placeholder">
+                                {session.email?.[0].toUpperCase()}
+                            </div>
+                        )}
+                        <span>{profile?.Username ?? session.email}</span>
+                    </div>
+
+                    <button className="btn-ghost" onClick={handleLogout}>Uitloggen</button>
                 </div>
             )}
         </header>

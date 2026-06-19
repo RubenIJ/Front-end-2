@@ -23,11 +23,20 @@ export default function PublicProfile() {
     if (!profile) return <p>Profiel laden...</p>;
 
     return (
-        <div>
-            {profile.avatar_url && <img src={profile.avatar_url} alt="avatar" width={80} />}
-            <h2>{profile.Username ?? '—'}</h2>
-            <p>{profile.Bio || 'Geen bio ingesteld.'}</p>
-            <p>Profiel: {profile.is_private ? 'Privé' : 'Openbaar'}</p>
+        <div className="profile-wrapper">
+            <div className="profile-card">
+                <div className="profile-header">
+                    {profile.avatar_url
+                        ? <img className="profile-avatar" src={profile.avatar_url} alt="avatar" />
+                        : <div className="profile-avatar-placeholder">{profile.Username?.[0]?.toUpperCase() ?? '?'}</div>
+                    }
+                    <div className="profile-info">
+                        <h2>{profile.Username ?? '—'}</h2>
+                        <span className="profile-badge">{profile.is_private ? 'Privé' : 'Openbaar'}</span>
+                    </div>
+                </div>
+                <p className="profile-bio">{profile.Bio || 'Geen bio ingesteld.'}</p>
+            </div>
         </div>
     );
 }

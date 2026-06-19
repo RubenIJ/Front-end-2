@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { useSession } from '../hooks/useSession';
+import toggleLike from '../components/toggleLike';
 
 function Posts() {
     const { session } = useSession();
     const [content, setContent] = useState('');
-    const [image, setImage] = useState(null);  //image const
+    const [image, setImage] = useState(null);
     const [posts, setPosts] = useState([]);
 
     // Posts ophalen
     const fetchPosts = async () => {
         const { data, error } = await supabase
             .from('posts')
-            .select('*');
+            .select('*, Profiles(Username, avatar_url), likes(*)');
 
         if (error) console.error('Fetch error:', error);
         setPosts(data || []);
@@ -72,10 +73,8 @@ function Posts() {
 
     return (
         <div>
-            <h1>Posts</h1>
-
-            {/*Formulier*/}
-            <form onSubmit={handleSubmit}>
+            {/* Formulier */}
+            <form className="posts-form" onSubmit={handleSubmit}>
                 <textarea
                     rows="5"
                     placeholder="Schrijf een post..."
@@ -83,26 +82,40 @@ function Posts() {
                     onChange={(e) => setContent(e.target.value)}
                     required
                 />
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setImage(e.target.files[0])}
-                />
-                <button type="submit">Posten</button>
+                <div className="posts-form-actions">
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setImage(e.target.files[0])}
+                    />
+                    <button className="btn-primary" type="submit">Posten</button>
+                </div>
             </form>
 
             {/* Posts tonen */}
             {posts.map((post) => (
-                <div key={post.id}>
-                    <p>{post.content}</p>
+                <div className="post-card" key={post.id}>
+                    <span className="post-author">{post.Profiles?.Username}</span>
+                    <p className="post-content">{post.content}</p>
                     {post.image && (
-                        <img src={post.image} alt="post afbeelding" width={200} />
+                        <img className="post-image" src={post.image} alt="post afbeelding" />
                     )}
-                    {post.user_id === session?.sub && (
-                        <button onClick={() => handleDelete(post.id)}>
-                            Verwijderen
+                    <div className="post-actions">
+                        {/* Like knop */}
+                        <button
+                            className={`btn-like ${post.likes.some(like => like.user_id === session.sub) ? 'liked' : ''}`}
+                            onClick={() => toggleLike(post.id, posts, session, fetchPosts)}
+                        >
+                            {post.likes.some(like => like.user_id === session.sub) ? '❤️' : '🤍'}
+                            {post.likes.length}
                         </button>
-                    )}
+                        {/* Verwijder knop */}
+                        {post.user_id === session?.sub && (
+                            <button className="btn-danger" onClick={() => handleDelete(post.id)}>
+                                Verwijderen
+                            </button>
+                        )}
+                    </div>
                 </div>
             ))}
         </div>
